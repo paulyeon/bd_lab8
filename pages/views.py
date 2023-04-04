@@ -9,13 +9,17 @@ from django.views.generic import TemplateView
 def homePageView(request):
     # return request object and specify page.
     return render(request, 'home.html', {
-        'mynumbers':[1,2,3,4,5,6,],
-        'firstName': 'Paul',
-        'lastName': 'Yeon'})
+        'distance_covered': [0, 7],
+        'cost': [0, 201],
+        'prev_club_cost': [0, 107],
+        'clubs': ['CHE', 'MUN', 'LIV'],
+    })
+
 
 def aboutPageView(request):
     # return request object and specify page.
     return render(request, 'about.html')
+
 
 def paulPageView(request):
     # return request object and specify page.
@@ -24,62 +28,80 @@ def paulPageView(request):
 
 def homePost(request):
     # Use request object to extract choice.
+    # Extract value from request object by control name.
+    dist_covered = int(request.POST['dist_covered'])
+    cost = int(request.POST['cost'])
+    prev_club_cost = int(request.POST['prev_club_cost'])
+    club = request.POST['choice']
 
-    choice = -999
-    gmat = -999
-
-    try:
-        # Extract value from request object by control name.
-        currentChoice = request.POST['choice']
-        gmatStr = request.POST['gmat']
-
-        # Crude debugging effort.
-        print("*** Years work experience: " + str(currentChoice))
-        choice = int(currentChoice)
-        gmat = float(gmatStr)
-    # Enters 'except' block if integer cannot be created.
-    except:
+    if dist_covered < 0 or dist_covered > 7:
         return render(request, 'home.html', {
-            'errorMessage': '*** The data submitted is invalid. Please try again.',
-            'mynumbers': [1, 2, 3, 4, 5, 6, ]})
+            'errorMessage': '*** Distance Covered must be between 0 and 7.',
+            'distance_covered': [0, 7],
+            'cost': [0, 201],
+            'prev_club_cost': [0, 107],
+            'clubs': ['CHE', 'MUN', 'LIV'], })
+    elif cost < 0 or cost > 201:
+        return render(request, 'home.html', {
+            'errorMessage': '*** Cost must be between 0 and 201.',
+            'distance_covered': [0, 7],
+            'cost': [0, 201],
+            'prev_club_cost': [0, 107],
+            'clubs': ['CHE', 'MUN', 'LIV'], })
+    elif prev_club_cost < 0 or prev_club_cost > 107:
+        return render(request, 'home.html', {
+            'errorMessage': '*** Previous Club Cost must be between 0 and 107.',
+            'distance_covered': [0, 7],
+            'cost': [0, 201],
+            'prev_club_cost': [0, 107],
+            'clubs': ['CHE', 'MUN', 'LIV'], })
     else:
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('results', kwargs={'choice': choice, 'gmat': gmat}, ))
+        return HttpResponseRedirect(reverse('results', kwargs={
+            'dist_covered': dist_covered,
+            'cost': cost,
+            'prev_club_cost': prev_club_cost,
+            'club': club}, ))
 
 
 import pickle
-import sklearn # You must perform a pip install.
+import sklearn  # You must perform a pip install.
 import pandas as pd
 
 
-def results(request, choice, gmat):
-    print("*** Inside reults()")
+def results(request, dist_covered, cost, prev_club_cost, club):
     # load saved model
     with open('./model_pkl', 'rb') as f:
         loadedModel = pickle.load(f)
 
-
     # Create a single prediction.
-    singleSampleDf = pd.DataFrame(columns=['gmat', 'work_experience'])
+    singleSampleDf = pd.DataFrame(columns=['DistanceCovered(InKms)', 'Cost',
+                                           'PreviousClubCost', 'CHE', 'MUN', 'LIV'])
+    che = 0
+    mun = 0
+    liv = 0
+    if club == "CHE":
+        che = 1
+    elif club == "MUN":
+        mun = 1
+    else:
+        liv = 1
 
+    simpleData = {'DistanceCovered(InKms)': dist_covered,
+                  'const': 1.0,
+                  'Cost': cost,
+                  'PreviousClubCost': prev_club_cost,
+                  'CHE': che,
+                  'MUN': mun,
+                  'LIV': liv}
 
-    workExperience = float(choice)
-    print("*** GMAT Score: " + str(gmat))
-    print("*** Years experience: " + str(workExperience))
-    singleSampleDf = singleSampleDf.append({'gmat':gmat,
-                                            'work_experience':workExperience},
-                                        ignore_index=True)
-
+    singleSampleDf = pd.concat([singleSampleDf,
+                                pd.DataFrame.from_records([simpleData])])
 
     singlePrediction = loadedModel.predict(singleSampleDf)
 
-
     print("Single prediction: " + str(singlePrediction))
 
-
-    return render(request, 'results.html', {'choice': workExperience, 'gmat':gmat,
-                'prediction':singlePrediction})
-
-
+    return render(request, 'results.html', {'dist_covered': dist_covered,
+                                            'cost': cost,
+                                            'prev_club_cost': prev_club_cost,
+                                            'club': club, 'prediction': str(singlePrediction)})

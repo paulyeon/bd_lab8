@@ -10,17 +10,23 @@
 {% csrf_token %}
 
 
-<h3>Years Work Experience</h3>
-
-
+<h3>Distance Covered (km) [betweeen 0 and 7]</h3>
 <!-- Show radio button list named 'choice' -->
-{% for choice in mynumbers %}
-    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice }}">
-    <label for="choice{{ forloop.counter }}">{{ choice }}</label><br>
-{% endfor %}
+<input type="number" id="dist_covered" name="dist_covered"><br><br>
 
-<h3>GMAT Score</h3>
-<input type="text" id="gmat" name="gmat"><br><br>
+<h3>Cost in 100,000 dollars [betweeen 0 and 201]</h3>
+<input type="number" id="cost" name="cost"><br><br>
+
+<h3>Previous Club Cost in 100,000 dollars [betweeen 0 and 107]</h3>
+<input type="number" id="prev_club_cost" name="prev_club_cost"><br><br>
+
+<h3>Club Name</h3>
+{% for choice in clubs %}
+    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice }}">
+    <label for="choice{{ forloop.counter }}">{{ choice }}</label><br><br>
+{% endfor %}
+<br>
+
 <!—Submit button is also contained in the form -->
 
 <input type="submit" value="POST YOUR CHOICE">

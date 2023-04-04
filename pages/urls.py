@@ -7,5 +7,5 @@ urlpatterns = [
     path('about/', aboutPageView, name='about'),
     path('paul/', paulPageView, name='paul'),
     path('homePost/', homePost, name='homePost'),
-    path('results/<int:choice>/<str:gmat>/', results, name='results'),
+    path('results/<int:dist_covered>/<int:cost>/<int:prev_club_cost>/<str:club>', results, name='results'),
 ]

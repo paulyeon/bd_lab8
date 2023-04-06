@@ -3,13 +3,27 @@
 
 
 {% block content %}
-  <h1>Results page</h1>
-  {{dist_covered}}<br/>
-  {{cost}}<br/>
-  {{prev_club_cost}}<br/>
-  {{club}}<br/>
-  {{prediction}}<br/>
-  {{prediction}}<br/>
-
+<h1 class="m-4">Results page</h1>
+  <div class="w-50 m-4">
+    <div class="card">
+      <ul class="list-group list-group-flush">
+       <li class="list-group-item">City: {{city}}</li>
+       <li class="list-group-item">Room Type: {{room_type}}</li>
+       <li class="list-group-item">Cleanliness: {{cleanliness}}</li>
+       <li class="list-group-item">Restaurant Index: {{restaurant_index}}</li>
+       <li class="list-group-item">Attraction Index: {{attraction_index}}</li>
+       <li class="list-group-item">Number of bedrooms: {{num_bedroom}}</li>
+       <li class="list-group-item">Popular Place: {{business_offer}}</li>
+       <li class="list-group-item">Super Host: {{super_host}}</li>
+       <li class="list-group-item">Private Room: {{private_room}}</li>
+       <li class="list-group-item">Multiple Rooms: {{multiple_rooms}}</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-body fs-2 fw-bold">
+        Predictions for Satisfaction (Max 100): {{prediction}}
+      </div>
+    </div>
+  </div>
 
 {% endblock content %}

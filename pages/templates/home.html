@@ -2,34 +2,77 @@
 
 
 {% block content %}
-<h1>Home page</h1>
+<h1 class="m-4">Predict your stay at an Airbnb</h1>
 
 
   <!-- This form references the homePost route. -->
 <form action="{% url 'homePost' %}" method="post">
 {% csrf_token %}
+  <div class="w-50">
+    <select class="form-select m-4" id="city" name="city" aria-label="Default select example">
+      <option selected value="0">Select a City</option>
+      <option value="0">Amsterdam</option>
+      <option value="1">Athens</option>
+      <option value="2">Barcelona</option>
+      <option value="3">Berlin</option>
+      <option value="4">Budapest</option>
+      <option value="5">Lisbon</option>
+      <option value="6">Paris</option>
+      <option value="7">Rome</option>
+      <option value="8">Vienna</option>
+    </select>
 
+    <select class="form-select m-4" id="room_type" name="room_type" aria-label="Default select example">
+      <option selected value="0">Select Room Type</option>
+      <option value="0">Private room</option>
+      <option value="1">Entire home/apt</option>
+      <option value="2">Shared room</option>
+    </select>
 
-<h3>Distance Covered (km) [betweeen 0 and 7]</h3>
-<!-- Show radio button list named 'choice' -->
-<input type="number" id="dist_covered" name="dist_covered"><br><br>
+    <input class="form-control m-4" type="text" id="cleanliness" name="cleanliness"
+           placeholder="Cleanliness from 0-10" min="0" max="10" aria-label="default input example">
 
-<h3>Cost in 100,000 dollars [betweeen 0 and 201]</h3>
-<input type="number" id="cost" name="cost"><br><br>
+    <input class="form-control m-4" type="text" id="restaurant_index" name="restaurant_index"
+       placeholder="Restaurant from 0-100 (higher better restaurant nearby)"
+           min="0" max="100" aria-label="default input example">
 
-<h3>Previous Club Cost in 100,000 dollars [betweeen 0 and 107]</h3>
-<input type="number" id="prev_club_cost" name="prev_club_cost"><br><br>
+    <input class="form-control m-4" type="text" id="attraction_index" name="attraction_index"
+       placeholder="Atttraction from 0-100 (higher better attraction nearby)"
+           min="0" max="100" aria-label="default input example">
 
-<h3>Club Name</h3>
-{% for choice in clubs %}
-    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice }}">
-    <label for="choice{{ forloop.counter }}">{{ choice }}</label><br><br>
-{% endfor %}
-<br>
+    <input class="form-control m-4" type="text" id="num_bedroom" name="num_bedroom"
+       placeholder="Number of bedrooms 0-10" min="0" max="10" aria-label="default input example">
+
+    <select class="form-select m-4" id="business_offer" name="business_offer" aria-label="Default select example">
+      <option selected value="0">Popular place</option>
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+
+    <select class="form-select m-4" id="super_host" name="super_host" aria-label="Default select example">
+      <option selected value="0">Super Host</option>
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+
+    <select class="form-select m-4" id="private_room" name="private_room" aria-label="Default select example">
+      <option selected value="0">Private Room</option>
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+
+    <select class="form-select m-4" id="multiple_rooms" name="multiple_rooms" aria-label="Default select example">
+      <option selected>Multiple Rooms (2-4)</option>
+      <option value="1" value="0">Yes</option>
+      <option value="0">No</option>
+    </select>
+    <div class="d-grid gap-2 col-6 mx-auto">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
 
 <!—Submit button is also contained in the form -->
 
-<input type="submit" value="POST YOUR CHOICE">
 </form>
 <!-- End of form. -->
 

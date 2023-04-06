@@ -9,10 +9,6 @@ from django.views.generic import TemplateView
 def homePageView(request):
     # return request object and specify page.
     return render(request, 'home.html', {
-        'distance_covered': [0, 7],
-        'cost': [0, 201],
-        'prev_club_cost': [0, 107],
-        'clubs': ['CHE', 'MUN', 'LIV'],
     })
 
 
@@ -28,39 +24,47 @@ def paulPageView(request):
 
 def homePost(request):
     # Use request object to extract choice.
-    # Extract value from request object by control name.
-    dist_covered = int(request.POST['dist_covered'])
-    cost = int(request.POST['cost'])
-    prev_club_cost = int(request.POST['prev_club_cost'])
-    club = request.POST['choice']
+    city = int(request.POST['city'])
+    room_type = int(request.POST['room_type'])
+    cleanliness = int(request.POST['cleanliness'])
+    restaurant_index = int(request.POST['restaurant_index'])
+    attraction_index = int(request.POST['attraction_index'])
+    num_bedroom = int(request.POST['num_bedroom'])
+    business_offer = int(request.POST['business_offer'])
+    super_host = int(request.POST['super_host'])
+    private_room = int(request.POST['private_room'])
+    multiple_rooms = int(request.POST['multiple_rooms'])
 
-    if dist_covered < 0 or dist_covered > 7:
+    if cleanliness < 0 or cleanliness > 10:
         return render(request, 'home.html', {
-            'errorMessage': '*** Distance Covered must be between 0 and 7.',
-            'distance_covered': [0, 7],
-            'cost': [0, 201],
-            'prev_club_cost': [0, 107],
-            'clubs': ['CHE', 'MUN', 'LIV'], })
-    elif cost < 0 or cost > 201:
+            'errorMessage': '*** Cleanliness must be between 0 - 10.',
+        })
+    elif restaurant_index < 0 or restaurant_index > 100:
         return render(request, 'home.html', {
-            'errorMessage': '*** Cost must be between 0 and 201.',
-            'distance_covered': [0, 7],
-            'cost': [0, 201],
-            'prev_club_cost': [0, 107],
-            'clubs': ['CHE', 'MUN', 'LIV'], })
-    elif prev_club_cost < 0 or prev_club_cost > 107:
+            'errorMessage': '*** Restaurant index must be between 0 - 100.',
+        })
+    elif attraction_index < 0 or attraction_index > 100:
         return render(request, 'home.html', {
-            'errorMessage': '*** Previous Club Cost must be between 0 and 107.',
-            'distance_covered': [0, 7],
-            'cost': [0, 201],
-            'prev_club_cost': [0, 107],
-            'clubs': ['CHE', 'MUN', 'LIV'], })
+            'errorMessage': '*** Attraction index must be between 0 - 100.',
+        })
+    elif num_bedroom < 0 or num_bedroom > 10:
+        return render(request, 'home.html', {
+            'errorMessage': '*** Number of bedrooms must be between 0 - 10.',
+        })
     else:
         return HttpResponseRedirect(reverse('results', kwargs={
-            'dist_covered': dist_covered,
-            'cost': cost,
-            'prev_club_cost': prev_club_cost,
-            'club': club}, ))
+            'city': city,
+            'room_type': room_type,
+            'cleanliness': cleanliness,
+            'restaurant_index': restaurant_index,
+            'attraction_index': attraction_index,
+            'num_bedroom': num_bedroom,
+            'business_offer': business_offer,
+            'super_host': super_host,
+            'private_room': private_room,
+            'multiple_rooms': multiple_rooms,
+        },
+            ))
 
 
 import pickle
@@ -68,40 +72,66 @@ import sklearn  # You must perform a pip install.
 import pandas as pd
 
 
-def results(request, dist_covered, cost, prev_club_cost, club):
+def results(request, city, room_type, cleanliness, restaurant_index,
+            attraction_index, num_bedroom, business_offer, super_host, private_room, multiple_rooms):
     # load saved model
     with open('./model_pkl', 'rb') as f:
         loadedModel = pickle.load(f)
 
     # Create a single prediction.
-    singleSampleDf = pd.DataFrame(columns=['DistanceCovered(InKms)', 'Cost',
-                                           'PreviousClubCost', 'CHE', 'MUN', 'LIV'])
-    che = 0
-    mun = 0
-    liv = 0
-    if club == "CHE":
-        che = 1
-    elif club == "MUN":
-        mun = 1
-    else:
-        liv = 1
+    singleSampleDf = pd.DataFrame(columns=['Cleanliness Rating', 'Normalised Restaurant Index',
+                                           'Normalised Attraction Index', 'City',
+                                           'Bedrooms', 'Business', 'Superhost', 'Room Type',
+                                           'Private Room', 'Multiple Rooms'])
 
-    simpleData = {'DistanceCovered(InKms)': dist_covered,
-                  'const': 1.0,
-                  'Cost': cost,
-                  'PreviousClubCost': prev_club_cost,
-                  'CHE': che,
-                  'MUN': mun,
-                  'LIV': liv}
+    simpleData = {
+            'City': city,
+            'Room Type': room_type,
+            'Cleanliness Rating': cleanliness,
+            'Normalised Restaurant Index': restaurant_index,
+            'Normalised Attraction Index': attraction_index,
+            'Bedrooms': num_bedroom,
+            'Business': business_offer,
+            'Superhost': super_host,
+            'Private Room': private_room,
+            'Multiple Rooms': multiple_rooms,
+        }
 
     singleSampleDf = pd.concat([singleSampleDf,
                                 pd.DataFrame.from_records([simpleData])])
 
     singlePrediction = loadedModel.predict(singleSampleDf)
 
-    print("Single prediction: " + str(singlePrediction))
 
-    return render(request, 'results.html', {'dist_covered': dist_covered,
-                                            'cost': cost,
-                                            'prev_club_cost': prev_club_cost,
-                                            'club': club, 'prediction': str(singlePrediction)})
+    city_dict = {'Amsterdam': 0, 'Athens': 1, 'Barcelona': 2, 'Berlin': 3, 'Budapest': 4, 'Lisbon': 5, 'Paris': 6, 'Rome': 7, 'Vienna': 8}
+    room_type_dict = {'Private room': 0, 'Entire home/apt': 1, 'Shared room': 2}
+    tf_dict = {False: 0, True: 1}
+
+    for key, val in city_dict.items():
+        if val == city:
+            city = key
+    for key, val in room_type_dict.items():
+        if val == room_type:
+            room_type = key
+    for key, val in tf_dict.items():
+        if val == super_host:
+            super_host = key
+    for key, val in tf_dict.items():
+        if val == private_room:
+            private_room = key
+    for key, val in tf_dict.items():
+        if val == multiple_rooms:
+            multiple_rooms = key
+
+    return render(request, 'results.html', {
+        'city': city,
+        'room_type': room_type,
+        'cleanliness': cleanliness,
+        'restaurant_index': restaurant_index,
+        'attraction_index': attraction_index,
+        'num_bedroom': num_bedroom,
+        'business_offer': business_offer,
+        'super_host': super_host,
+        'private_room': private_room,
+        'multiple_rooms': multiple_rooms,
+        'prediction': str(singlePrediction[0])})

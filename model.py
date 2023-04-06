@@ -22,26 +22,45 @@ display(HTML("<style>pre { white-space: pre !important; }</style>"))
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 1000)
 
-df = pd.read_csv('EPL_Soccer_MLR_LR.csv', header=0)
+df = pd.read_csv('Aemf1.csv', header=0)
 
-clubs = set(df.Club)
-nominal_features = pd.get_dummies(df['Club'])
-df = pd.concat([df, nominal_features], axis=1)
+# Convert string columns
+unique_val_temp = df['City'].unique()
+temp_dict = dict(zip(unique_val_temp, range(len(unique_val_temp))))
+print(temp_dict)
+df = df.replace(temp_dict)
 
-X = df[['DistanceCovered(InKms)', 'Cost',
-        'PreviousClubCost', 'CHE', 'MUN', 'LIV']]
-print(X.describe())
-y = df[['Score']]
+unique_val_temp = df['Day'].unique()
+temp_dict = dict(zip(unique_val_temp, range(len(unique_val_temp))))
+df = df.replace(temp_dict)
+
+unique_val_temp = df['Room Type'].unique()
+temp_dict = dict(zip(unique_val_temp, range(len(unique_val_temp))))
+print(temp_dict)
+df = df.replace(temp_dict)
+
+unique_val_temp = df['Shared Room'].unique()
+temp_dict = dict(zip(unique_val_temp, range(len(unique_val_temp))))
+print(temp_dict)
+df = df.replace(temp_dict)
+# print(list(df.columns))
+
+# X = df.copy()
+# X = X.drop(columns=['Guest Satisfaction', 'Attraction Index', 'Normalised Restaurant Index', 'Person Capacity',
+#                     'Day', 'Price', 'Metro Distance (km)', 'City Center (km)'])
+X = df[['Cleanliness Rating', 'Normalised Restaurant Index', 'Normalised Attraction Index', 'City', 'Bedrooms', 'Business', 'Superhost', 'Room Type', 'Private Room', 'Multiple Rooms']]
+# # print(list(X.columns))
+y = df[['Guest Satisfaction']]
 X = sm.add_constant(X)
 
 x_train, x_test, y_train, y_test = train_test_split(X, y, train_size=0.75,
                                                     test_size=0.25, random_state=100)
 
 model = sm.OLS(y_train, x_train).fit()
-print(model.summary())
-predictions = model.predict(x_test)
-print('Root Mean Squared Error:',
-      np.sqrt(metrics.mean_squared_error(y_test, predictions)))
+# print(model.summary())
+# predictions = model.predict(x_test)
+# print('Root Mean Squared Error:',
+#       np.sqrt(metrics.mean_squared_error(y_test, predictions)))
 
 # Save the model.
 with open('model_pkl', 'wb') as files:
@@ -53,15 +72,16 @@ with open('model_pkl', 'rb') as f:
 
 print(x_test)
 y_pred = loadedModel.predict(x_test)
-# print(y_pred)
+
 
 # feature_list = list(X.columns)
+# feature_list = ['Cleanliness Rating', 'Normalised Restaurant Index', 'Normalised Attraction Index', 'City', 'Bedrooms', 'Business', 'Superhost', 'Room Type', 'Private Room', 'Multiple Rooms']
 # labels = np.array(y)
 # features = np.array(X[feature_list])
 #
 # train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size = 0.25, random_state = 42)
 # rf = RandomForestRegressor(n_estimators=1000, random_state=42)
-# rf.fit(train_features, train_labels)
+# model = rf.fit(train_features, train_labels)
 # predictions = rf.predict(test_features)
 # errors = abs(predictions - test_labels)
 # mape = 100 * (errors / test_labels)
@@ -70,7 +90,21 @@ y_pred = loadedModel.predict(x_test)
 # print('Accuracy:', round(accuracy, 2), '%.')
 # mse = mean_squared_error(test_labels, predictions)
 # print('RMSE:', np.sqrt(mse))
+
+# # Save the model.
+# with open('model_pkl', 'wb') as files:
+#     pickle.dump(model, files)
+#
+# # load saved model
+# with open('model_pkl', 'rb') as f:
+#     loadedModel = pickle.load(f)
+
+
+
+
 # importances = list(rf.feature_importances_)
+
+
 # def showFeatureImportances(importances, feature_list):
 #     dfImportance = pd.DataFrame()
 #     for i in range(0, len(importances)):
@@ -79,8 +113,8 @@ y_pred = loadedModel.predict(x_test)
 #                                             ignore_index = True)
 #     dfImportance = dfImportance.sort_values(by=['importance'],
 #                                             ascending=False)
-#     # print(list(dfImportance['feature'][0:10]))
-# # showFeatureImportances(importances, feature_list)
+#     print(list(dfImportance['feature'][0:10]))
+# showFeatureImportances(importances, feature_list)
 
 
 # def getUnfitModels():
@@ -141,7 +175,7 @@ y_pred = loadedModel.predict(x_test)
 # stackedPredictions = stackedModel.predict(dfValidationPredictions)
 # print("\n** Evaluate Stacked Model **")
 # evaluateModel(y_test, stackedPredictions, stackedModel)
-
+#
 #
 # from   sklearn.model_selection import train_test_split
 # from   sklearn.linear_model    import LogisticRegression

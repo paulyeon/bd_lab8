@@ -51,7 +51,7 @@ df = df.replace(temp_dict)
 X = df[['Cleanliness Rating', 'Normalised Restaurant Index', 'Normalised Attraction Index', 'City', 'Bedrooms', 'Business', 'Superhost', 'Room Type', 'Private Room', 'Multiple Rooms']]
 # # print(list(X.columns))
 y = df[['Guest Satisfaction']]
-X = sm.add_constant(X)
+# X = sm.add_constant(X)
 
 x_train, x_test, y_train, y_test = train_test_split(X, y, train_size=0.75,
                                                     test_size=0.25, random_state=100)
@@ -66,15 +66,12 @@ model = sm.OLS(y_train, x_train).fit()
 with open('model_pkl', 'wb') as files:
     pickle.dump(model, files)
 
-# load saved model
-with open('model_pkl', 'rb') as f:
-    loadedModel = pickle.load(f)
-
-print(x_test)
-y_pred = loadedModel.predict(x_test)
+#
+# print(x_test)
+# y_pred = loadedModel.predict(x_test)
 
 
-# feature_list = list(X.columns)
+# # feature_list = list(X.columns)
 # feature_list = ['Cleanliness Rating', 'Normalised Restaurant Index', 'Normalised Attraction Index', 'City', 'Bedrooms', 'Business', 'Superhost', 'Room Type', 'Private Room', 'Multiple Rooms']
 # labels = np.array(y)
 # features = np.array(X[feature_list])
@@ -90,7 +87,7 @@ y_pred = loadedModel.predict(x_test)
 # print('Accuracy:', round(accuracy, 2), '%.')
 # mse = mean_squared_error(test_labels, predictions)
 # print('RMSE:', np.sqrt(mse))
-
+#
 # # Save the model.
 # with open('model_pkl', 'wb') as files:
 #     pickle.dump(model, files)

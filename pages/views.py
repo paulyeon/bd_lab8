@@ -5,7 +5,6 @@ from django.http import Http404
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-
 def homePageView(request):
     # return request object and specify page.
     return render(request, 'home.html', {
@@ -68,7 +67,6 @@ def homePost(request):
 
 
 import pickle
-import sklearn  # You must perform a pip install.
 import pandas as pd
 
 

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-fbwp!#&c@*w^u&j*yvv6-)kq5@*ou@je3&5-d#8llacy0fv*z^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['syeon.pythonanywhere.com']
 
 
 # Application definition
